@@ -29,7 +29,7 @@ public class ImGuiContext {
         ImPlot.createContext();
 
         ImGuiIO io = ImGui.getIO();
-        io.addBackendFlags(ImGuiBackendFlags.None);
+        io.addBackendFlags(ImGuiBackendFlags.RendererHasVtxOffset);
         io.setBackendPlatformName("imgui_java_impl_swing");
         io.setBackendRendererName("imgui_java_impl_buffered_image");
 

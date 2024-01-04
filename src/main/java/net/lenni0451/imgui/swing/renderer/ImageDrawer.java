@@ -35,12 +35,11 @@ public class ImageDrawer {
                 final int indexBufferOffset = drawData.getCmdListCmdBufferIdxOffset(cmdListI, cmdBufferI);
                 final int vertexBufferOffset = drawData.getCmdListCmdBufferVtxOffset(cmdListI, cmdBufferI);
                 final int indices = indexBufferOffset * ImDrawData.SIZEOF_IM_DRAW_IDX;
-                if (vertexBufferOffset != 0) throw new IllegalStateException("vertex buffer offset is not 0");
 
                 for (int i = 0, x = 0; i < elementCount / 3; i++, x += 6) {
-                    final Vertex left = vertexBuffer.getVertex(indexBuffer.getUnsignedShort(indices + x) * ImDrawData.SIZEOF_IM_DRAW_VERT);
-                    final Vertex middle = vertexBuffer.getVertex(indexBuffer.getUnsignedShort(indices + x + ImDrawData.SIZEOF_IM_DRAW_IDX) * ImDrawData.SIZEOF_IM_DRAW_VERT);
-                    final Vertex right = vertexBuffer.getVertex(indexBuffer.getUnsignedShort(indices + x + ImDrawData.SIZEOF_IM_DRAW_IDX * 2) * ImDrawData.SIZEOF_IM_DRAW_VERT);
+                    final Vertex left = vertexBuffer.getVertex((indexBuffer.getUnsignedShort(indices + x) + vertexBufferOffset) * ImDrawData.SIZEOF_IM_DRAW_VERT);
+                    final Vertex middle = vertexBuffer.getVertex((indexBuffer.getUnsignedShort(indices + x + ImDrawData.SIZEOF_IM_DRAW_IDX) + vertexBufferOffset) * ImDrawData.SIZEOF_IM_DRAW_VERT);
+                    final Vertex right = vertexBuffer.getVertex((indexBuffer.getUnsignedShort(indices + x + ImDrawData.SIZEOF_IM_DRAW_IDX * 2) + vertexBufferOffset) * ImDrawData.SIZEOF_IM_DRAW_VERT);
                     final Triangle triangle = new Triangle(left, middle, right, textureId);
                     triangle.draw(this.target);
                 }
