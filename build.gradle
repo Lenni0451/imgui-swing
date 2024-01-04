@@ -3,7 +3,6 @@ plugins {
     id "maven-publish"
     id "signing"
     id "checkstyle"
-    id "net.raphimc.class-token-replacer" version "1.0.0"
 }
 
 base {
@@ -28,64 +27,21 @@ repositories {
         name = "lenni0451"
         url = "https://maven.lenni0451.net/everything"
     }
-    maven {
-        name = "jitpack"
-        url = "https://jitpack.io"
-    }
-    maven {
-        name = "sonatype snapshots"
-        url "https://oss.sonatype.org/content/repositories/snapshots/"
-    }
-
-    //ivy { //include "waterfall:1.19:504@jar"
-    //    url "https://papermc.io/api/v2/projects"
-    //    patternLayout {
-    //        artifact "/[organisation]/versions/[module]/builds/[revision]/downloads/[organisation]-[module]-[revision].[ext]"
-    //    }
-    //    metadataSources {
-    //        artifact()
-    //    }
-    //}
 }
 
 dependencies {
-    if (new File(projectDir, "libs").exists()) { //Include all jars in the libs folder
-        include fileTree(include: ["*.jar"], dir: "libs")
-    }
-
     implementation "com.google.code.findbugs:jsr305:3.0.2"
-    //include "net.lenni0451:Reflect:1.0.0"
+    include "io.github.spair:imgui-java-binding:1.86.11"
 
-    testImplementation(platform("org.junit:junit-bom:5.10.1"))
-    testImplementation "org.junit.jupiter:junit-jupiter"
-    testRuntimeOnly "org.junit.platform:junit-platform-launcher"    
-}
-
-sourceSets {
-    main {
-        classTokenReplacer {
-            //Replace all instances of '${version}' with the project version
-            property("\${version}", project.version)
-        }
+    ["windows", "linux", "macos"].each {
+        testImplementation "io.github.spair:imgui-java-natives-$it:1.86.4"
     }
+    testImplementation "net.lenni0451:Reflect:1.3.1"
 }
 
 java {
     withSourcesJar()
     withJavadocJar()
-}
-
-processResources {
-    //Config file: "version: ${version}"
-    inputs.properties(
-            "version": project.maven_version
-    )
-
-    filesMatching("config.yml") {
-        expand(
-                "version": project.maven_version
-        )
-    }
 }
 
 artifacts {
@@ -109,14 +65,6 @@ jar {
                 "Multi-Release": "true"
         )
     }
-}
-
-test {
-    useJUnitPlatform()
-    testLogging {
-        events "passed", "skipped", "failed"
-    }
-    maxParallelForks Runtime.runtime.availableProcessors()
 }
 
 publishing {
@@ -191,5 +139,4 @@ signing {
 project.tasks.withType(PublishToMavenRepository).forEach {
     it.dependsOn(project.tasks.withType(Sign))
 }
-build.dependsOn(test)
 build.dependsOn(check)
