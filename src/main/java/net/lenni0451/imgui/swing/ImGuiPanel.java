@@ -19,7 +19,7 @@ public class ImGuiPanel extends JPanel {
     private long lastFrame = 0;
 
     public ImGuiPanel() {
-        ImGuiContext.init();
+        ImGuiContext.init(this::init);
 
         this.setFocusable(true);
         this.addMouseListener(new MouseAdapter() {
@@ -78,6 +78,12 @@ public class ImGuiPanel extends JPanel {
                 e.consume();
             }
         });
+    }
+
+    /**
+     * <b>Called before the implementation constructor!</b>
+     */
+    protected void init() {
     }
 
     @Override
