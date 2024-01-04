@@ -4,6 +4,7 @@ import net.lenni0451.imgui.swing.TextureManager;
 import net.lenni0451.imgui.swing.util.ColorUtil;
 
 import java.awt.image.BufferedImage;
+import java.awt.image.DataBuffer;
 
 public class Triangle {
 
@@ -37,6 +38,8 @@ public class Triangle {
 
     public void draw(final BufferedImage target) {
         final BufferedImage texture = TextureManager.get(this.textureId);
+        final DataBuffer targetBuffer = target.getRaster().getDataBuffer();
+        final DataBuffer textureBuffer = texture.getRaster().getDataBuffer();
 
         final int minX = (int) Math.min(Math.min(this.p1.x, this.p2.x), this.p3.x);
         final int minY = (int) Math.min(Math.min(this.p1.y, this.p2.y), this.p3.y);
@@ -63,15 +66,16 @@ public class Triangle {
 
                     final int textureX = (int) Math.round(w * p1.u * textureWidth + u * p2.u * textureWidth + v * p3.u * textureWidth);
                     final int textureY = (int) Math.round(w * p1.v * textureHeight + u * p2.v * textureHeight + v * p3.v * textureHeight);
-                    final int textureColor = texture.getRGB(textureX, textureY);
+                    final int textureColor = textureBuffer.getElem(textureX + textureY * textureWidth);
                     if ((textureColor >> 24 & 0xFF) == 0) continue;
 
-                    int mixedColor = ColorUtil.mix(vertexColor, textureColor);
-                    int mixedAlpha = mixedColor >> 24 & 0xFF;
+                    final int mixedColor = ColorUtil.mix(vertexColor, textureColor);
+                    final int mixedAlpha = mixedColor >> 24 & 0xFF;
+                    final int bufferIndex = x + y * frameWidth;
                     if (mixedAlpha == 255) {
-                        target.setRGB(x, y, mixedColor);
+                        targetBuffer.setElem(bufferIndex, mixedColor);
                     } else if (mixedAlpha != 0) {
-                        target.setRGB(x, y, ColorUtil.blendColors(target.getRGB(x, y), mixedColor));
+                        targetBuffer.setElem(bufferIndex, ColorUtil.blendColors(targetBuffer.getElem(bufferIndex), mixedColor));
                     }
                 }
             }
