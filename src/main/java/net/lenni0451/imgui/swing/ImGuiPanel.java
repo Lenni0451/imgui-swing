@@ -3,6 +3,7 @@ package net.lenni0451.imgui.swing;
 import imgui.ImDrawData;
 import imgui.ImGui;
 import imgui.ImGuiIO;
+import imgui.flag.ImGuiMouseButton;
 import net.lenni0451.imgui.swing.renderer.ImageDrawer;
 
 import javax.swing.*;
@@ -36,11 +37,11 @@ public class ImGuiPanel extends JPanel {
             private int mapButton(final int button) {
                 switch (button) {
                     case MouseEvent.BUTTON1:
-                        return 0;
+                        return ImGuiMouseButton.Left;
                     case MouseEvent.BUTTON2:
-                        return 2;
+                        return ImGuiMouseButton.Middle;
                     case MouseEvent.BUTTON3:
-                        return 1;
+                        return ImGuiMouseButton.Right;
                     default:
                         return -1;
                 }
