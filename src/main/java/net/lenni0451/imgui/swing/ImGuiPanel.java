@@ -50,7 +50,7 @@ public class ImGuiPanel extends JPanel {
         });
         this.addMouseWheelListener(e -> {
             ImGuiIO io = ImGui.getIO();
-            io.setMouseWheel(-e.getWheelRotation());
+            io.setMouseWheel(io.getMouseWheel() - e.getWheelRotation());
         });
         this.addKeyListener(new KeyListener() {
             @Override
