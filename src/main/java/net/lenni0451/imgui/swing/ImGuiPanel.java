@@ -7,6 +7,8 @@ import net.lenni0451.imgui.swing.renderer.ImageDrawer;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 
 public class ImGuiPanel extends JPanel {
@@ -15,15 +17,42 @@ public class ImGuiPanel extends JPanel {
 
     public ImGuiPanel() {
         ImGuiContext.init();
+
+        this.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                ImGuiIO io = ImGui.getIO();
+                io.setMouseDown(e.getButton() - 1, true);
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                ImGuiIO io = ImGui.getIO();
+                io.setMouseDown(e.getButton() - 1, false);
+            }
+        });
+        this.addMouseWheelListener(e -> {
+            ImGuiIO io = ImGui.getIO();
+            io.setMouseWheelH(io.getMouseWheelH() + e.getWheelRotation());
+            io.setMouseWheel(-(io.getMouseWheel() + e.getWheelRotation()));
+        });
     }
 
     @Override
     public void paint(Graphics g) {
         ImGuiIO io = ImGui.getIO();
+        try {
+            Point mousePos = this.getMousePosition();
+            if (mousePos != null) io.setMousePos(mousePos.x, mousePos.y);
+            else io.setMousePos(-1, -1);
+        } catch (Throwable ignored) {
+            io.setMousePos(-1, -1);
+        }
         io.setDisplaySize(this.getWidth(), this.getHeight());
         if (this.lastFrame == 0) io.setDeltaTime(1F / 60F);
         else io.setDeltaTime((System.currentTimeMillis() - this.lastFrame) / 1000F);
         this.lastFrame = System.currentTimeMillis();
+//        System.out.println("FPS: " + (1 / io.getDeltaTime()) + " (" + io.getDeltaTime() + ")");
 
         ImGui.newFrame();
         this.render();
@@ -31,7 +60,7 @@ public class ImGuiPanel extends JPanel {
 
         ImDrawData data = ImGui.getDrawData();
         BufferedImage frame = new BufferedImage(this.getWidth(), this.getHeight(), BufferedImage.TYPE_INT_ARGB);
-        final ImageDrawer imageDrawer = new ImageDrawer(frame);
+        ImageDrawer imageDrawer = new ImageDrawer(frame);
         imageDrawer.clear();
         imageDrawer.draw(data);
         g.drawImage(frame, 0, 0, null);
