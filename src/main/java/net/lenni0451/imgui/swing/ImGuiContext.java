@@ -6,6 +6,7 @@ import imgui.ImGuiIO;
 import imgui.ImGuiPlatformIO;
 import imgui.callback.ImStrConsumer;
 import imgui.callback.ImStrSupplier;
+import imgui.extension.implot.ImPlot;
 import imgui.flag.ImGuiBackendFlags;
 import imgui.flag.ImGuiKey;
 import imgui.type.ImInt;
@@ -25,6 +26,7 @@ public class ImGuiContext {
     public static void init() {
         if (initialized.getAndSet(true)) return;
         ImGui.createContext();
+        ImPlot.createContext();
 
         ImGuiIO io = ImGui.getIO();
         io.addBackendFlags(ImGuiBackendFlags.None);

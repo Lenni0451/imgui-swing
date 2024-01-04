@@ -70,6 +70,7 @@ public class ImGuiPanel extends JPanel {
 
     protected void render() {
         ImGui.showDemoWindow();
+        //ImPlot.showDemoWindow(new ImBoolean());
     }
 
 }
