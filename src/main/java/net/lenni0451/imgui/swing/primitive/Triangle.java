@@ -3,6 +3,7 @@ package net.lenni0451.imgui.swing.primitive;
 import net.lenni0451.imgui.swing.TextureManager;
 import net.lenni0451.imgui.swing.util.ColorUtil;
 
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 
@@ -36,7 +37,7 @@ public class Triangle {
         return this.textureId;
     }
 
-    public void draw(final BufferedImage target) {
+    public void draw(final BufferedImage target, final Rectangle clipRect) {
         final BufferedImage texture = TextureManager.get(this.textureId);
         final int[] targetBuffer = ((DataBufferInt) target.getRaster().getDataBuffer()).getData();
         final int[] textureBuffer = ((DataBufferInt) texture.getRaster().getDataBuffer()).getData();
@@ -46,12 +47,11 @@ public class Triangle {
         final int maxX = (int) Math.max(Math.max(this.p1.x, this.p2.x), this.p3.x);
         final int maxY = (int) Math.max(Math.max(this.p1.y, this.p2.y), this.p3.y);
         final int frameWidth = target.getWidth();
-        final int frameHeight = target.getHeight();
         final int textureWidth = texture.getWidth();
         final int textureHeight = texture.getHeight();
         for (int x = minX; x <= maxX; x++) {
             for (int y = minY; y <= maxY; y++) {
-                if (x >= 0 && y >= 0 && x < frameWidth && y < frameHeight && this.isInTriangle(x, y)) {
+                if (clipRect.contains(x, y) && this.isInTriangle(x, y)) {
                     final double w = ((p2.y - p3.y) * (x - p3.x) + (p3.x - p2.x) * (y - p3.y)) / ((p2.y - p3.y) * (p1.x - p3.x) + (p3.x - p2.x) * (p1.y - p3.y));
                     final double u = ((p3.y - p1.y) * (x - p3.x) + (p1.x - p3.x) * (y - p3.y)) / ((p2.y - p3.y) * (p1.x - p3.x) + (p3.x - p2.x) * (p1.y - p3.y));
                     final double v = 1 - u - w;

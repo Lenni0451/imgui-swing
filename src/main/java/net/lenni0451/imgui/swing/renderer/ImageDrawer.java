@@ -1,6 +1,8 @@
 package net.lenni0451.imgui.swing.renderer;
 
 import imgui.ImDrawData;
+import imgui.ImVec2;
+import imgui.ImVec4;
 import net.lenni0451.imgui.swing.primitive.Triangle;
 import net.lenni0451.imgui.swing.primitive.Vertex;
 import net.lenni0451.imgui.swing.util.WrappedBuffer;
@@ -30,6 +32,12 @@ public class ImageDrawer {
     }
 
     public void draw(final ImDrawData drawData) {
+        final ImVec2 displayPos = drawData.getDisplayPos();
+        final ImVec2 framebufferScale = drawData.getFramebufferScale();
+        final float clipOffX = displayPos.x;
+        final float clipOffY = displayPos.y;
+        final float clipScaleX = framebufferScale.x;
+        final float clipScaleY = framebufferScale.y;
         for (int cmdListI = 0; cmdListI < drawData.getCmdListsCount(); cmdListI++) {
             final WrappedBuffer vertexBuffer = new WrappedBuffer(drawData.getCmdListVtxBufferData(cmdListI));
             final WrappedBuffer indexBuffer = new WrappedBuffer(drawData.getCmdListIdxBufferData(cmdListI));
@@ -40,12 +48,20 @@ public class ImageDrawer {
                 final int vertexBufferOffset = drawData.getCmdListCmdBufferVtxOffset(cmdListI, cmdBufferI);
                 final int indices = indexBufferOffset * ImDrawData.SIZEOF_IM_DRAW_IDX;
 
+                ImVec4 clipRect = drawData.getCmdListCmdBufferClipRect(cmdListI, cmdBufferI);
+                final float clipMinX = (clipRect.x - clipOffX) * clipScaleX;
+                final float clipMinY = (clipRect.y - clipOffY) * clipScaleY;
+                final float clipMaxX = (clipRect.z - clipOffX) * clipScaleX;
+                final float clipMaxY = (clipRect.w - clipOffY) * clipScaleY;
+                if (clipMaxX <= clipMinX || clipMaxY <= clipMinY) continue;
+                Rectangle clip = new Rectangle((int) clipMinX, (int) clipMinY, (int) (clipMaxX - clipMinX), (int) (clipMaxY - clipMinY));
+
                 for (int i = 0, x = 0; i < elementCount / 3; i++, x += 6) {
                     final Vertex left = vertexBuffer.getVertex((indexBuffer.getUnsignedShort(indices + x) + vertexBufferOffset) * ImDrawData.SIZEOF_IM_DRAW_VERT);
                     final Vertex middle = vertexBuffer.getVertex((indexBuffer.getUnsignedShort(indices + x + ImDrawData.SIZEOF_IM_DRAW_IDX) + vertexBufferOffset) * ImDrawData.SIZEOF_IM_DRAW_VERT);
                     final Vertex right = vertexBuffer.getVertex((indexBuffer.getUnsignedShort(indices + x + ImDrawData.SIZEOF_IM_DRAW_IDX * 2) + vertexBufferOffset) * ImDrawData.SIZEOF_IM_DRAW_VERT);
                     final Triangle triangle = new Triangle(left, middle, right, textureId);
-                    triangle.draw(this.target);
+                    triangle.draw(this.target, clip);
                 }
             }
         }
