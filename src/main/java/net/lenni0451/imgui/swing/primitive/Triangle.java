@@ -44,6 +44,8 @@ public class Triangle {
         final int maxY = (int) Math.max(Math.max(this.p1.y, this.p2.y), this.p3.y);
         final int frameWidth = target.getWidth();
         final int frameHeight = target.getHeight();
+        final int textureWidth = texture.getWidth();
+        final int textureHeight = texture.getHeight();
         for (int x = minX; x <= maxX; x++) {
             for (int y = minY; y <= maxY; y++) {
                 if (this.isInTriangle(x, y) && x >= 0 && y >= 0 && x < frameWidth && y < frameHeight) {
@@ -59,8 +61,8 @@ public class Triangle {
                     final int r = (int) (w * (p1.color & 0xFF) + u * (p2.color & 0xFF) + v * (p3.color & 0xFF));
                     final int vertexColor = (a << 24) | (r << 16) | (g << 8) | b;
 
-                    final int textureX = (int) Math.round(w * p1.u * texture.getWidth() + u * p2.u * texture.getWidth() + v * p3.u * texture.getWidth());
-                    final int textureY = (int) Math.round(w * p1.v * texture.getHeight() + u * p2.v * texture.getHeight() + v * p3.v * texture.getHeight());
+                    final int textureX = (int) Math.round(w * p1.u * textureWidth + u * p2.u * textureWidth + v * p3.u * textureWidth);
+                    final int textureY = (int) Math.round(w * p1.v * textureHeight + u * p2.v * textureHeight + v * p3.v * textureHeight);
                     final int textureColor = texture.getRGB(textureX, textureY);
                     if ((textureColor >> 24 & 0xFF) == 0) continue;
 
