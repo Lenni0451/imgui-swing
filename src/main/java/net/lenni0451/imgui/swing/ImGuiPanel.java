@@ -8,6 +8,8 @@ import net.lenni0451.imgui.swing.renderer.ImageDrawer;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
@@ -19,31 +21,27 @@ public class ImGuiPanel extends JPanel {
     public ImGuiPanel() {
         ImGuiContext.init();
 
+        this.setFocusable(true);
         this.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
-                ImGuiIO io = ImGui.getIO();
-                int button = this.mapButton(e.getButton());
-                if (button != -1) io.setMouseDown(button, true);
+                this.update(e.getButton(), true);
             }
 
             @Override
             public void mouseReleased(MouseEvent e) {
-                ImGuiIO io = ImGui.getIO();
-                int button = this.mapButton(e.getButton());
-                if (button != -1) io.setMouseDown(button, false);
+                this.update(e.getButton(), false);
             }
 
-            private int mapButton(final int button) {
-                switch (button) {
+            private void update(final int mouseButton, final boolean down) {
+                ImGuiIO io = ImGui.getIO();
+                switch (mouseButton) {
                     case MouseEvent.BUTTON1:
-                        return ImGuiMouseButton.Left;
+                        io.setMouseDown(ImGuiMouseButton.Left, down);
                     case MouseEvent.BUTTON2:
-                        return ImGuiMouseButton.Middle;
+                        io.setMouseDown(ImGuiMouseButton.Middle, down);
                     case MouseEvent.BUTTON3:
-                        return ImGuiMouseButton.Right;
-                    default:
-                        return -1;
+                        io.setMouseDown(ImGuiMouseButton.Right, down);
                 }
             }
         });
@@ -51,6 +49,35 @@ public class ImGuiPanel extends JPanel {
             ImGuiIO io = ImGui.getIO();
             io.setMouseWheelH(io.getMouseWheelH() + e.getWheelRotation());
             io.setMouseWheel(-(io.getMouseWheel() + e.getWheelRotation()));
+        });
+        this.addKeyListener(new KeyListener() {
+            @Override
+            public void keyTyped(KeyEvent e) {
+                ImGuiIO io = ImGui.getIO();
+                if (e.getKeyChar() == KeyEvent.CHAR_UNDEFINED) return;
+                if (e.getKeyChar() == '\n') return;
+                io.addInputCharacter(e.getKeyChar());
+            }
+
+            @Override
+            public void keyPressed(KeyEvent e) {
+                this.update(e, true);
+            }
+
+            @Override
+            public void keyReleased(KeyEvent e) {
+                this.update(e, false);
+            }
+
+            private void update(final KeyEvent e, final boolean pressed) {
+                ImGuiIO io = ImGui.getIO();
+                io.setKeysDown(e.getKeyCode(), pressed);
+                io.setKeyCtrl(e.isControlDown());
+                io.setKeyShift(e.isShiftDown());
+                io.setKeyAlt(e.isAltDown());
+                io.setKeySuper(e.isMetaDown());
+                e.consume();
+            }
         });
     }
 
@@ -60,9 +87,7 @@ public class ImGuiPanel extends JPanel {
         try {
             Point mousePos = this.getMousePosition();
             if (mousePos != null) io.setMousePos(mousePos.x, mousePos.y);
-            else io.setMousePos(-1, -1);
         } catch (Throwable ignored) {
-            io.setMousePos(-1, -1);
         }
         io.setDisplaySize(this.getWidth(), this.getHeight());
         if (this.lastFrame == 0) io.setDeltaTime(1F / 60F);
