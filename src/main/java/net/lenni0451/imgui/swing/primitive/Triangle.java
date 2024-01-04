@@ -3,7 +3,6 @@ package net.lenni0451.imgui.swing.primitive;
 import net.lenni0451.imgui.swing.TextureManager;
 import net.lenni0451.imgui.swing.util.ColorUtil;
 
-import java.awt.*;
 import java.awt.image.BufferedImage;
 
 public class Triangle {
@@ -38,24 +37,34 @@ public class Triangle {
 
     public void draw(final BufferedImage target) {
         final BufferedImage texture = TextureManager.get(this.textureId);
-        final Rectangle bounds = this.getBounds();
+
+        final int minX = (int) Math.min(Math.min(this.p1.x, this.p2.x), this.p3.x);
+        final int minY = (int) Math.min(Math.min(this.p1.y, this.p2.y), this.p3.y);
+        final int maxX = (int) Math.max(Math.max(this.p1.x, this.p2.x), this.p3.x);
+        final int maxY = (int) Math.max(Math.max(this.p1.y, this.p2.y), this.p3.y);
         final int frameWidth = target.getWidth();
         final int frameHeight = target.getHeight();
-        for (int x = bounds.x; x <= bounds.width; x++) {
-            for (int y = bounds.y; y <= bounds.height; y++) {
+        final int textureWidth = texture.getWidth();
+        final int textureHeight = texture.getHeight();
+        for (int x = minX; x <= maxX; x++) {
+            for (int y = minY; y <= maxY; y++) {
                 if (this.isInTriangle(x, y) && x >= 0 && y >= 0 && x < frameWidth && y < frameHeight) {
                     final double w = ((p2.y - p3.y) * (x - p3.x) + (p3.x - p2.x) * (y - p3.y)) / ((p2.y - p3.y) * (p1.x - p3.x) + (p3.x - p2.x) * (p1.y - p3.y));
                     final double u = ((p3.y - p1.y) * (x - p3.x) + (p1.x - p3.x) * (y - p3.y)) / ((p2.y - p3.y) * (p1.x - p3.x) + (p3.x - p2.x) * (p1.y - p3.y));
                     final double v = 1 - u - w;
+
+                    final int a = (int) (w * (p1.color >> 24 & 0xFF) + u * (p2.color >> 24 & 0xFF) + v * (p3.color >> 24 & 0xFF));
+                    if (a == 0) continue;
+
                     final int b = (int) (w * (p1.color >> 16 & 0xFF) + u * (p2.color >> 16 & 0xFF) + v * (p3.color >> 16 & 0xFF));
                     final int g = (int) (w * (p1.color >> 8 & 0xFF) + u * (p2.color >> 8 & 0xFF) + v * (p3.color >> 8 & 0xFF));
                     final int r = (int) (w * (p1.color & 0xFF) + u * (p2.color & 0xFF) + v * (p3.color & 0xFF));
-                    final int a = (int) (w * (p1.color >> 24 & 0xFF) + u * (p2.color >> 24 & 0xFF) + v * (p3.color >> 24 & 0xFF));
                     final int vertexColor = (a << 24) | (r << 16) | (g << 8) | b;
 
-                    int textureX = (int) Math.round(w * p1.u * texture.getWidth() + u * p2.u * texture.getWidth() + v * p3.u * texture.getWidth());
-                    int textureY = (int) Math.round(w * p1.v * texture.getHeight() + u * p2.v * texture.getHeight() + v * p3.v * texture.getHeight());
-                    int textureColor = texture.getRGB(textureX, textureY);
+                    final int textureX = (int) Math.round(w * p1.u * textureWidth + u * p2.u * textureWidth + v * p3.u * textureWidth);
+                    final int textureY = (int) Math.round(w * p1.v * textureHeight + u * p2.v * textureHeight + v * p3.v * textureHeight);
+                    final int textureColor = texture.getRGB(textureX, textureY);
+                    if ((textureColor >> 24 & 0xFF) == 0) continue;
 
                     int mixedColor = ColorUtil.mix(vertexColor, textureColor);
                     int mixedAlpha = mixedColor >> 24 & 0xFF;
@@ -67,15 +76,6 @@ public class Triangle {
                 }
             }
         }
-    }
-
-    public Rectangle getBounds() {
-        return new Rectangle(
-                (int) Math.min(Math.min(this.p1.x, this.p2.x), this.p3.x),
-                (int) Math.min(Math.min(this.p1.y, this.p2.y), this.p3.y),
-                (int) Math.max(Math.max(this.p1.x, this.p2.x), this.p3.x),
-                (int) Math.max(Math.max(this.p1.y, this.p2.y), this.p3.y)
-        );
     }
 
     public boolean isInTriangle(final float x, final float y) {
