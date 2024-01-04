@@ -37,7 +37,7 @@ public class ImGuiContext {
 
         io.setKeyMap(getKeyMap());
         setClipboardFunctions(io);
-        initMonitors(io);
+        initMonitors();
         initFonts(io);
         ImGui.getMainViewport().setPlatformHandle(0);
         io.setDisplayFramebufferScale(1, 1);
@@ -95,7 +95,7 @@ public class ImGuiContext {
         });
     }
 
-    private static void initMonitors(final ImGuiIO io) {
+    private static void initMonitors() {
         ImGuiPlatformIO platformIO = ImGui.getPlatformIO();
         platformIO.resizeMonitors(0);
         for (GraphicsDevice device : GraphicsEnvironment.getLocalGraphicsEnvironment().getScreenDevices()) {
