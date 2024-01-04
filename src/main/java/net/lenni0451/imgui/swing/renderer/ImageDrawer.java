@@ -16,6 +16,10 @@ public class ImageDrawer {
     private final Graphics2D graphics2D;
 
     public ImageDrawer(final BufferedImage target) {
+        if (target.getType() != BufferedImage.TYPE_INT_ARGB) {
+            throw new IllegalArgumentException("Target image must be of type TYPE_INT_ARGB");
+        }
+
         this.target = target;
         this.graphics2D = target.createGraphics();
     }
