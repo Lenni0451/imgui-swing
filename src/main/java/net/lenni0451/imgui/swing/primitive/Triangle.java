@@ -39,9 +39,11 @@ public class Triangle {
     public void draw(final BufferedImage target) {
         final BufferedImage texture = TextureManager.get(this.textureId);
         final Rectangle bounds = this.getBounds();
+        final int frameWidth = target.getWidth();
+        final int frameHeight = target.getHeight();
         for (int x = bounds.x; x <= bounds.width; x++) {
             for (int y = bounds.y; y <= bounds.height; y++) {
-                if (this.isInTriangle(x, y)) {
+                if (this.isInTriangle(x, y) && x >= 0 && y >= 0 && x < frameWidth && y < frameHeight) {
                     final double w = ((p2.y - p3.y) * (x - p3.x) + (p3.x - p2.x) * (y - p3.y)) / ((p2.y - p3.y) * (p1.x - p3.x) + (p3.x - p2.x) * (p1.y - p3.y));
                     final double u = ((p3.y - p1.y) * (x - p3.x) + (p1.x - p3.x) * (y - p3.y)) / ((p2.y - p3.y) * (p1.x - p3.x) + (p3.x - p2.x) * (p1.y - p3.y));
                     final double v = 1 - u - w;
