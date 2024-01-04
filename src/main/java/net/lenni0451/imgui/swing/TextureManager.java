@@ -9,6 +9,7 @@ import java.util.Map;
 public class TextureManager {
 
     private static final Map<Integer, BufferedImage> textures = new HashMap<>();
+    private static int nextId = 1;
 
     public static int createRGBA(final ByteBuffer buffer, final int width, final int height) {
         BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
@@ -23,8 +24,13 @@ public class TextureManager {
         return create(image);
     }
 
-    public static int create(final BufferedImage texture) {
-        int id = textures.size();
+    public static int create(BufferedImage texture) {
+        if (texture.getType() != BufferedImage.TYPE_INT_ARGB) {
+            BufferedImage newTexture = new BufferedImage(texture.getWidth(), texture.getHeight(), BufferedImage.TYPE_INT_ARGB);
+            newTexture.getGraphics().drawImage(texture, 0, 0, null);
+            texture = newTexture;
+        }
+        int id = nextId++;
         textures.put(id, texture);
         return id;
     }
