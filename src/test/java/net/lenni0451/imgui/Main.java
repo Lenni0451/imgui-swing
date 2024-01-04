@@ -139,9 +139,7 @@ public class Main {
                     if (mixedAlpha == 255) {
                         image.setRGB(x, y, mixedColor);
                     } else if (mixedAlpha != 0) {
-                        image.setRGB(x, y, mixedColor);
-//                        g2d.setColor(new Color(mixedColor, true));
-//                        g2d.fillRect(x, y, 1, 1);
+                        image.setRGB(x, y, blendColors(image.getRGB(x, y), mixedColor));
                     }
                 }
             }
@@ -162,6 +160,25 @@ public class Main {
         int g = (int) (g1 * g2 / 255F);
         int b = (int) (b1 * b2 / 255F);
         return (a << 24) | (r << 16) | (g << 8) | b;
+    }
+
+    public static int blendColors(final int color1, final int color2) {
+        int a1 = color1 >> 24 & 0xFF;
+        int r1 = color1 >> 16 & 0xFF;
+        int g1 = color1 >> 8 & 0xFF;
+        int b1 = color1 & 0xFF;
+        int a2 = color2 >> 24 & 0xFF;
+        int r2 = color2 >> 16 & 0xFF;
+        int g2 = color2 >> 8 & 0xFF;
+        int b2 = color2 & 0xFF;
+
+        float alpha = a2 / 255.0f;
+
+        int blendedRed = (int) ((1 - alpha) * r1 + alpha * r2);
+        int blendedGreen = (int) ((1 - alpha) * g1 + alpha * g2);
+        int blendedBlue = (int) ((1 - alpha) * b1 + alpha * b2);
+
+        return (255 << 24) | (blendedRed << 16) | (blendedGreen << 8) | blendedBlue;
     }
 
     private static int[] getKeyMap() {
