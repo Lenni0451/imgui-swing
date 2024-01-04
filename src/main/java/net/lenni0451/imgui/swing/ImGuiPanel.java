@@ -22,13 +22,28 @@ public class ImGuiPanel extends JPanel {
             @Override
             public void mousePressed(MouseEvent e) {
                 ImGuiIO io = ImGui.getIO();
-                io.setMouseDown(e.getButton() - 1, true);
+                int button = this.mapButton(e.getButton());
+                if (button != -1) io.setMouseDown(button, true);
             }
 
             @Override
             public void mouseReleased(MouseEvent e) {
                 ImGuiIO io = ImGui.getIO();
-                io.setMouseDown(e.getButton() - 1, false);
+                int button = this.mapButton(e.getButton());
+                if (button != -1) io.setMouseDown(button, false);
+            }
+
+            private int mapButton(final int button) {
+                switch (button) {
+                    case MouseEvent.BUTTON1:
+                        return 0;
+                    case MouseEvent.BUTTON2:
+                        return 2;
+                    case MouseEvent.BUTTON3:
+                        return 1;
+                    default:
+                        return -1;
+                }
             }
         });
         this.addMouseWheelListener(e -> {
