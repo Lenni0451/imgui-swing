@@ -23,10 +23,12 @@ public class ImGuiContext {
 
     private static final AtomicBoolean initialized = new AtomicBoolean(false);
 
-    public static void init() {
+    public static void init(final Runnable externalInit) {
         if (initialized.getAndSet(true)) return;
         ImGui.createContext();
         ImPlot.createContext();
+
+        externalInit.run();
 
         ImGuiIO io = ImGui.getIO();
         io.addBackendFlags(ImGuiBackendFlags.RendererHasVtxOffset);
