@@ -52,20 +52,20 @@ public class Triangle {
         for (int x = minX; x <= maxX; x++) {
             for (int y = minY; y <= maxY; y++) {
                 if (clipRect.contains(x, y) && this.isInTriangle(x, y)) {
-                    final double w = ((p2.y - p3.y) * (x - p3.x) + (p3.x - p2.x) * (y - p3.y)) / ((p2.y - p3.y) * (p1.x - p3.x) + (p3.x - p2.x) * (p1.y - p3.y));
-                    final double u = ((p3.y - p1.y) * (x - p3.x) + (p1.x - p3.x) * (y - p3.y)) / ((p2.y - p3.y) * (p1.x - p3.x) + (p3.x - p2.x) * (p1.y - p3.y));
+                    final double w = ((this.p2.y - this.p3.y) * (x - this.p3.x) + (this.p3.x - this.p2.x) * (y - this.p3.y)) / ((this.p2.y - this.p3.y) * (this.p1.x - this.p3.x) + (this.p3.x - this.p2.x) * (this.p1.y - this.p3.y));
+                    final double u = ((this.p3.y - this.p1.y) * (x - this.p3.x) + (this.p1.x - this.p3.x) * (y - this.p3.y)) / ((this.p2.y - this.p3.y) * (this.p1.x - this.p3.x) + (this.p3.x - this.p2.x) * (this.p1.y - this.p3.y));
                     final double v = 1 - u - w;
 
-                    final int a = (int) (w * (p1.color >> 24 & 0xFF) + u * (p2.color >> 24 & 0xFF) + v * (p3.color >> 24 & 0xFF));
+                    final int a = (int) (w * (this.p1.color >> 24 & 0xFF) + u * (this.p2.color >> 24 & 0xFF) + v * (this.p3.color >> 24 & 0xFF));
                     if (a == 0) continue;
 
-                    final int b = (int) (w * (p1.color >> 16 & 0xFF) + u * (p2.color >> 16 & 0xFF) + v * (p3.color >> 16 & 0xFF));
-                    final int g = (int) (w * (p1.color >> 8 & 0xFF) + u * (p2.color >> 8 & 0xFF) + v * (p3.color >> 8 & 0xFF));
-                    final int r = (int) (w * (p1.color & 0xFF) + u * (p2.color & 0xFF) + v * (p3.color & 0xFF));
+                    final int b = (int) (w * (this.p1.color >> 16 & 0xFF) + u * (this.p2.color >> 16 & 0xFF) + v * (this.p3.color >> 16 & 0xFF));
+                    final int g = (int) (w * (this.p1.color >> 8 & 0xFF) + u * (this.p2.color >> 8 & 0xFF) + v * (this.p3.color >> 8 & 0xFF));
+                    final int r = (int) (w * (this.p1.color & 0xFF) + u * (this.p2.color & 0xFF) + v * (this.p3.color & 0xFF));
                     final int vertexColor = (a << 24) | (r << 16) | (g << 8) | b;
 
-                    final int textureX = (int) Math.round(w * p1.u * textureWidth + u * p2.u * textureWidth + v * p3.u * textureWidth);
-                    final int textureY = (int) Math.round(w * p1.v * textureHeight + u * p2.v * textureHeight + v * p3.v * textureHeight);
+                    final int textureX = (int) Math.round(w * this.p1.u * textureWidth + u * this.p2.u * textureWidth + v * this.p3.u * textureWidth);
+                    final int textureY = (int) Math.round(w * this.p1.v * textureHeight + u * this.p2.v * textureHeight + v * this.p3.v * textureHeight);
                     if (textureX < 0 || textureY < 0 || textureX >= textureWidth || textureY >= textureHeight) continue;
                     final int textureColor = textureBuffer[textureX + textureY * textureWidth];
                     if ((textureColor >> 24 & 0xFF) == 0) continue;
@@ -86,12 +86,10 @@ public class Triangle {
     public boolean isInTriangle(final float x, final float y) {
         double s = this.p1.y * this.p3.x - this.p1.x * this.p3.y + (this.p3.y - this.p1.y) * x + (this.p1.x - this.p3.x) * y;
         double t = this.p1.x * this.p2.y - this.p1.y * this.p2.x + (this.p1.y - this.p2.y) * x + (this.p2.x - this.p1.x) * y;
-
         if ((s < 0) != (t < 0)) return false;
 
-        double A = -this.p2.y * this.p3.x + this.p1.y * (this.p3.x - this.p2.x) + this.p1.x * (this.p2.y - this.p3.y) + this.p2.x * this.p3.y;
-
-        return A < 0 ? (s <= 0 && s + t >= A) : (s >= 0 && s + t <= A);
+        double a = -this.p2.y * this.p3.x + this.p1.y * (this.p3.x - this.p2.x) + this.p1.x * (this.p2.y - this.p3.y) + this.p2.x * this.p3.y;
+        return a < 0 ? (s <= 0 && s + t >= a) : (s >= 0 && s + t <= a);
     }
 
 }
