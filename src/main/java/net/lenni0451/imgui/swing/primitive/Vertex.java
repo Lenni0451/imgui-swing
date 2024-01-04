@@ -16,19 +16,19 @@ public class Vertex {
         this.color = color;
     }
 
-    public double getX() {
+    public float getX() {
         return this.x;
     }
 
-    public double getY() {
+    public float getY() {
         return this.y;
     }
 
-    public double getU() {
+    public float getU() {
         return this.u;
     }
 
-    public double getV() {
+    public float getV() {
         return this.v;
     }
 
