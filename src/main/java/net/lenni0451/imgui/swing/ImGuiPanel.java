@@ -38,10 +38,13 @@ public class ImGuiPanel extends JPanel {
                 switch (mouseButton) {
                     case MouseEvent.BUTTON1:
                         io.setMouseDown(ImGuiMouseButton.Left, down);
+                        break;
                     case MouseEvent.BUTTON2:
                         io.setMouseDown(ImGuiMouseButton.Middle, down);
+                        break;
                     case MouseEvent.BUTTON3:
                         io.setMouseDown(ImGuiMouseButton.Right, down);
+                        break;
                 }
             }
         });
