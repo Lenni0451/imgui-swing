@@ -3,9 +3,7 @@ package net.lenni0451.imgui.swing;
 import imgui.ImDrawData;
 import imgui.ImGui;
 import imgui.ImGuiIO;
-import imgui.extension.implot.ImPlot;
 import imgui.flag.ImGuiMouseButton;
-import imgui.type.ImBoolean;
 import net.lenni0451.imgui.swing.renderer.ImageDrawer;
 
 import javax.swing.*;
@@ -111,8 +109,8 @@ public class ImGuiPanel extends JPanel {
     }
 
     protected void render() {
-//        ImGui.showDemoWindow();
-        ImPlot.showDemoWindow(new ImBoolean());
+        ImGui.showDemoWindow();
+        //ImPlot.showDemoWindow(new ImBoolean());
     }
 
 }
