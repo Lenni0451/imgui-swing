@@ -63,6 +63,7 @@ public class ImGuiPanel extends JPanel {
         ImageDrawer imageDrawer = new ImageDrawer(frame);
         imageDrawer.clear();
         imageDrawer.draw(data);
+        g.clearRect(0, 0, this.getWidth(), this.getHeight());
         g.drawImage(frame, 0, 0, null);
         this.repaint();
     }
