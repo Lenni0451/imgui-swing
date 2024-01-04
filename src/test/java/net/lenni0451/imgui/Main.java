@@ -7,9 +7,7 @@ import imgui.flag.ImGuiBackendFlags;
 import imgui.flag.ImGuiKey;
 import imgui.type.ImInt;
 import net.lenni0451.imgui.swing.TextureManager;
-import net.lenni0451.imgui.swing.Triangle;
-import net.lenni0451.imgui.swing.Vertex;
-import net.lenni0451.imgui.swing.WrappedBuffer;
+import net.lenni0451.imgui.swing.renderer.ImageDrawer;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -85,100 +83,11 @@ public class Main {
         long start = System.nanoTime();
         ImDrawData data = ImGui.getDrawData();
         BufferedImage frame = new BufferedImage((int) data.getDisplaySizeX(), (int) data.getDisplaySizeY(), BufferedImage.TYPE_INT_ARGB);
-        Graphics2D g2d = frame.createGraphics();
-        for (int cmdListI = 0; cmdListI < data.getCmdListsCount(); cmdListI++) {
-            WrappedBuffer vertexBuffer = new WrappedBuffer(data.getCmdListVtxBufferData(cmdListI));
-            WrappedBuffer indexBuffer = new WrappedBuffer(data.getCmdListIdxBufferData(cmdListI));
-            for (int cmdBufferI = 0; cmdBufferI < data.getCmdListCmdBufferSize(cmdListI); cmdBufferI++) {
-                int textureId = data.getCmdListCmdBufferTextureId(cmdListI, cmdBufferI);
-                int elementCount = data.getCmdListCmdBufferElemCount(cmdListI, cmdBufferI);
-                int indexBufferOffset = data.getCmdListCmdBufferIdxOffset(cmdListI, cmdBufferI);
-                int vertexBufferOffset = data.getCmdListCmdBufferVtxOffset(cmdListI, cmdBufferI);
-                int indices = indexBufferOffset * ImDrawData.SIZEOF_IM_DRAW_IDX;
-                if (vertexBufferOffset != 0) throw new IllegalStateException("vertex buffer offset is not 0");
-
-                for (int i = 0, x = 0; i < elementCount / 3; i++, x += 6) {
-                    Vertex left = vertexBuffer.getVertex(indexBuffer.getUnsignedShort(indices + x) * ImDrawData.SIZEOF_IM_DRAW_VERT);
-                    Vertex middle = vertexBuffer.getVertex(indexBuffer.getUnsignedShort(indices + x + 2) * ImDrawData.SIZEOF_IM_DRAW_VERT);
-                    Vertex right = vertexBuffer.getVertex(indexBuffer.getUnsignedShort(indices + x + 4) * ImDrawData.SIZEOF_IM_DRAW_VERT);
-                    draw(frame, g2d, new Triangle(left, middle, right, textureId));
-                }
-            }
-        }
-        g2d.dispose();
+        final ImageDrawer imageDrawer = new ImageDrawer(frame);
+        imageDrawer.clear();
+        imageDrawer.draw(data);
         System.out.println("Took " + (System.nanoTime() - start) / 1000000F + "ms");
         ImageIO.write(frame, "png", new File("test.png"));
-    }
-
-    private static void draw(final BufferedImage image, final Graphics2D g2d, final Triangle triangle) {
-        BufferedImage texture = TextureManager.get(triangle.getTextureId());
-        Vertex p1 = triangle.getP1();
-        Vertex p2 = triangle.getP2();
-        Vertex p3 = triangle.getP3();
-        Rectangle bounds = triangle.getBounds();
-        for (int x = bounds.x; x <= bounds.width; x++) {
-            for (int y = bounds.y; y <= bounds.height; y++) {
-                if (triangle.isInTriangle(x, y)) {
-                    double w = ((p2.getY() - p3.getY()) * (x - p3.getX()) + (p3.getX() - p2.getX()) * (y - p3.getY())) /
-                            ((p2.getY() - p3.getY()) * (p1.getX() - p3.getX()) + (p3.getX() - p2.getX()) * (p1.getY() - p3.getY()));
-                    double u = ((p3.getY() - p1.getY()) * (x - p3.getX()) + (p1.getX() - p3.getX()) * (y - p3.getY())) /
-                            ((p2.getY() - p3.getY()) * (p1.getX() - p3.getX()) + (p3.getX() - p2.getX()) * (p1.getY() - p3.getY()));
-                    double v = 1 - u - w;
-                    int b = (int) (w * (p1.getColor() >> 16 & 0xFF) + u * (p2.getColor() >> 16 & 0xFF) + v * (p3.getColor() >> 16 & 0xFF));
-                    int g = (int) (w * (p1.getColor() >> 8 & 0xFF) + u * (p2.getColor() >> 8 & 0xFF) + v * (p3.getColor() >> 8 & 0xFF));
-                    int r = (int) (w * (p1.getColor() & 0xFF) + u * (p2.getColor() & 0xFF) + v * (p3.getColor() & 0xFF));
-                    int a = (int) (w * (p1.getColor() >> 24 & 0xFF) + u * (p2.getColor() >> 24 & 0xFF) + v * (p3.getColor() >> 24 & 0xFF));
-                    int vertexColor = (a << 24) | (r << 16) | (g << 8) | b;
-
-                    int textureX = (int) Math.round(w * p1.getU() * texture.getWidth() + u * p2.getU() * texture.getWidth() + v * p3.getU() * texture.getWidth());
-                    int textureY = (int) Math.round(w * p1.getV() * texture.getHeight() + u * p2.getV() * texture.getHeight() + v * p3.getV() * texture.getHeight());
-                    int textureColor = texture.getRGB(textureX, textureY);
-
-                    int mixedColor = mix(vertexColor, textureColor);
-                    int mixedAlpha = mixedColor >> 24 & 0xFF;
-                    if (mixedAlpha == 255) {
-                        image.setRGB(x, y, mixedColor);
-                    } else if (mixedAlpha != 0) {
-                        image.setRGB(x, y, blendColors(image.getRGB(x, y), mixedColor));
-                    }
-                }
-            }
-        }
-    }
-
-    private static int mix(final int color1, final int color2) {
-        int a1 = color1 >> 24 & 0xFF;
-        int r1 = color1 >> 16 & 0xFF;
-        int g1 = color1 >> 8 & 0xFF;
-        int b1 = color1 & 0xFF;
-        int a2 = color2 >> 24 & 0xFF;
-        int r2 = color2 >> 16 & 0xFF;
-        int g2 = color2 >> 8 & 0xFF;
-        int b2 = color2 & 0xFF;
-        int a = (int) (a1 * a2 / 255F);
-        int r = (int) (r1 * r2 / 255F);
-        int g = (int) (g1 * g2 / 255F);
-        int b = (int) (b1 * b2 / 255F);
-        return (a << 24) | (r << 16) | (g << 8) | b;
-    }
-
-    public static int blendColors(final int color1, final int color2) {
-        int a1 = color1 >> 24 & 0xFF;
-        int r1 = color1 >> 16 & 0xFF;
-        int g1 = color1 >> 8 & 0xFF;
-        int b1 = color1 & 0xFF;
-        int a2 = color2 >> 24 & 0xFF;
-        int r2 = color2 >> 16 & 0xFF;
-        int g2 = color2 >> 8 & 0xFF;
-        int b2 = color2 & 0xFF;
-
-        float alpha = a2 / 255.0f;
-
-        int blendedRed = (int) ((1 - alpha) * r1 + alpha * r2);
-        int blendedGreen = (int) ((1 - alpha) * g1 + alpha * g2);
-        int blendedBlue = (int) ((1 - alpha) * b1 + alpha * b2);
-
-        return (255 << 24) | (blendedRed << 16) | (blendedGreen << 8) | blendedBlue;
     }
 
     private static int[] getKeyMap() {

@@ -1,12 +1,12 @@
-package net.lenni0451.imgui.swing;
+package net.lenni0451.imgui.swing.primitive;
 
 public class Vertex {
 
-    private final float x;
-    private final float y;
-    private final float u;
-    private final float v;
-    private final int color;
+    final float x;
+    final float y;
+    final float u;
+    final float v;
+    final int color;
 
     public Vertex(final float x, final float y, final float u, final float v, final int color) {
         this.x = x;

@@ -1,4 +1,6 @@
-package net.lenni0451.imgui.swing;
+package net.lenni0451.imgui.swing.util;
+
+import net.lenni0451.imgui.swing.primitive.Vertex;
 
 import java.nio.ByteBuffer;
 
