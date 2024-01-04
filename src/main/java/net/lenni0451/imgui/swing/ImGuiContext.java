@@ -31,7 +31,7 @@ public class ImGuiContext {
         externalInit.run();
 
         ImGuiIO io = ImGui.getIO();
-        io.addBackendFlags(ImGuiBackendFlags.RendererHasVtxOffset);
+        io.addBackendFlags(ImGuiBackendFlags.RendererHasVtxOffset | ImGuiBackendFlags.HasMouseCursors);
         io.setBackendPlatformName("imgui_java_impl_swing");
         io.setBackendRendererName("imgui_java_impl_buffered_image");
 

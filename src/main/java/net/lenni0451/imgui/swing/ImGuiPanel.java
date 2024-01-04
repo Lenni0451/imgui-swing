@@ -4,6 +4,7 @@ import imgui.ImDrawData;
 import imgui.ImGui;
 import imgui.ImGuiIO;
 import imgui.flag.ImGuiMouseButton;
+import imgui.flag.ImGuiMouseCursor;
 import net.lenni0451.imgui.swing.renderer.ImageDrawer;
 
 import javax.swing.*;
@@ -15,6 +16,23 @@ import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 
 public class ImGuiPanel extends JPanel {
+
+    private static final Cursor[] MOUSE_CURSORS = new Cursor[ImGuiMouseCursor.COUNT];
+    private static final Cursor HIDDEN_CURSOR;
+
+    static {
+        MOUSE_CURSORS[ImGuiMouseCursor.Arrow] = new Cursor(Cursor.DEFAULT_CURSOR);
+        MOUSE_CURSORS[ImGuiMouseCursor.TextInput] = new Cursor(Cursor.TEXT_CURSOR);
+        MOUSE_CURSORS[ImGuiMouseCursor.ResizeAll] = new Cursor(Cursor.MOVE_CURSOR);
+        MOUSE_CURSORS[ImGuiMouseCursor.ResizeNS] = new Cursor(Cursor.N_RESIZE_CURSOR);
+        MOUSE_CURSORS[ImGuiMouseCursor.ResizeEW] = new Cursor(Cursor.E_RESIZE_CURSOR);
+        MOUSE_CURSORS[ImGuiMouseCursor.ResizeNESW] = new Cursor(Cursor.NE_RESIZE_CURSOR);
+        MOUSE_CURSORS[ImGuiMouseCursor.ResizeNWSE] = new Cursor(Cursor.NW_RESIZE_CURSOR);
+        MOUSE_CURSORS[ImGuiMouseCursor.Hand] = new Cursor(Cursor.HAND_CURSOR);
+        MOUSE_CURSORS[ImGuiMouseCursor.NotAllowed] = new Cursor(Cursor.DEFAULT_CURSOR);
+        BufferedImage cursorImg = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
+        HIDDEN_CURSOR = Toolkit.getDefaultToolkit().createCustomCursor(cursorImg, new Point(0, 0), "hidden");
+    }
 
     private long lastFrame = 0;
 
@@ -92,12 +110,14 @@ public class ImGuiPanel extends JPanel {
     @Override
     public void paint(Graphics g) {
         ImGuiIO io = ImGui.getIO();
+        io.setDisplaySize(this.getWidth(), this.getHeight());
         try {
             Point mousePos = this.getMousePosition();
             if (mousePos != null) io.setMousePos(mousePos.x, mousePos.y);
         } catch (Throwable ignored) {
         }
-        io.setDisplaySize(this.getWidth(), this.getHeight());
+        if (ImGui.getMouseCursor() == ImGuiMouseCursor.None || io.getMouseDrawCursor()) this.setCursor(HIDDEN_CURSOR);
+        else this.setCursor(MOUSE_CURSORS[ImGui.getMouseCursor()]);
         if (this.lastFrame == 0) io.setDeltaTime(1F / 60F);
         else io.setDeltaTime((System.currentTimeMillis() - this.lastFrame) / 1000F);
         this.lastFrame = System.currentTimeMillis();
