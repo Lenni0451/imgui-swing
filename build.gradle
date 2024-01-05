@@ -23,10 +23,6 @@ configurations {
 
 repositories {
     mavenCentral()
-    maven {
-        name = "lenni0451"
-        url = "https://maven.lenni0451.net/everything"
-    }
 }
 
 dependencies {
@@ -36,7 +32,6 @@ dependencies {
     ["windows", "linux", "macos"].each {
         testImplementation "io.github.spair:imgui-java-natives-$it:1.86.4"
     }
-    testImplementation "net.lenni0451:Reflect:1.3.1"
 }
 
 java {
@@ -80,17 +75,6 @@ publishing {
                 basic(BasicAuthentication)
             }
         }
-        maven {
-            name = "ossrh"
-            def releasesUrl = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
-            def snapshotsUrl = "https://s01.oss.sonatype.org/content/repositories/snapshots/"
-            url = project.maven_version.endsWith("SNAPSHOT") ? snapshotsUrl : releasesUrl
-
-            credentials(PasswordCredentials)
-            authentication {
-                basic(BasicAuthentication)
-            }
-        }
     }
     publications {
         maven(MavenPublication) {
@@ -102,12 +86,12 @@ publishing {
 
             pom {
                 name = rootProject.name
-                description = "A template for gradle projects"
-                url = "https://github.com/Lenni0451/GradleTemplate"
+                description = "Draw ImGui in a Java Swing Panel"
+                url = "https://github.com/Lenni0451/imgui-swing"
                 licenses {
                     license {
                         name = "MIT License"
-                        url = "https://github.com/Lenni0451/GradleTemplate/blob/main/LICENSE"
+                        url = "https://github.com/Lenni0451/imgui-swing/blob/main/LICENSE"
                     }
                 }
                 developers {
@@ -116,9 +100,9 @@ publishing {
                     }
                 }
                 scm {
-                    connection = "scm:git:git://github.com/Lenni0451/GradleTemplate.git"
-                    developerConnection = "scm:git:ssh://github.com/Lenni0451/GradleTemplate.git"
-                    url = "github.com/Lenni0451/GradleTemplate"
+                    connection = "scm:git:git://github.com/Lenni0451/imgui-swing.git"
+                    developerConnection = "scm:git:ssh://github.com/Lenni0451/imgui-swing.git"
+                    url = "github.com/Lenni0451/imgui-swing"
                 }
             }
         }
