@@ -35,6 +35,10 @@ public class ImGuiPanel extends JPanel {
     }
 
     private long lastFrame = 0;
+    private BufferedImage frame;
+    private ImageDrawer imageDrawer;
+    private int lastWidth;
+    private int lastHeight;
 
     public ImGuiPanel() {
         ImGuiContext.init(this::init);
@@ -110,7 +114,17 @@ public class ImGuiPanel extends JPanel {
     @Override
     public void paint(Graphics g) {
         ImGuiIO io = ImGui.getIO();
-        io.setDisplaySize(this.getWidth(), this.getHeight());
+        int width = this.getWidth();
+        int height = this.getHeight();
+        io.setDisplaySize(width, height);
+        if (this.frame == null || width != this.lastWidth || height != this.lastHeight) {
+            this.lastWidth = width;
+            this.lastHeight = height;
+            this.frame = new BufferedImage(this.getWidth(), this.getHeight(), BufferedImage.TYPE_INT_ARGB);
+            this.imageDrawer = new ImageDrawer(this.frame);
+        } else {
+            this.imageDrawer.clear();
+        }
         try {
             Point mousePos = this.getMousePosition();
             if (mousePos != null) io.setMousePos(mousePos.x, mousePos.y);
@@ -127,12 +141,9 @@ public class ImGuiPanel extends JPanel {
         ImGui.render();
 
         ImDrawData data = ImGui.getDrawData();
-        BufferedImage frame = new BufferedImage(this.getWidth(), this.getHeight(), BufferedImage.TYPE_INT_ARGB);
-        ImageDrawer imageDrawer = new ImageDrawer(frame);
-        imageDrawer.clear();
-        imageDrawer.draw(data);
+        this.imageDrawer.draw(data);
         g.clearRect(0, 0, this.getWidth(), this.getHeight());
-        g.drawImage(frame, 0, 0, null);
+        g.drawImage(this.frame, 0, 0, null);
         this.repaint();
     }
 
