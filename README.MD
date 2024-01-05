@@ -64,3 +64,10 @@ To load a new texture and get the texture id, you can call the `TextureManager.c
 BufferedImage image = ...;
 int textureId = TextureManager.create(image);
 ```
+
+## Gradle
+```groovy
+dependencies {
+    implementation "net.lenni0451:imgui-java:x.x.x"
+}
+```
