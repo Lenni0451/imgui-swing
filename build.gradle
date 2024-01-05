@@ -1,5 +1,5 @@
 plugins {
-    id "java"
+    id "java-library"
     id "maven-publish"
     id "signing"
     id "checkstyle"
@@ -14,20 +14,12 @@ base {
     version = project.maven_version
 }
 
-configurations {
-    include
-
-    implementation.extendsFrom include
-    api.extendsFrom include
-}
-
 repositories {
     mavenCentral()
 }
 
 dependencies {
-    implementation "com.google.code.findbugs:jsr305:3.0.2"
-    include "io.github.spair:imgui-java-binding:1.86.11"
+    api "io.github.spair:imgui-java-binding:1.86.11"
 
     ["windows", "linux", "macos"].each {
         testImplementation "io.github.spair:imgui-java-natives-$it:1.86.4"
@@ -41,25 +33,6 @@ java {
 
 artifacts {
     archives javadocJar, sourcesJar
-}
-
-jar {
-    dependsOn configurations.include
-    from {
-        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-        configurations.include.collect {
-            zipTree(it)
-        }
-    } {
-        exclude "META-INF/*.RSA", "META-INF/*.SF", "META-INF/*.DSA"
-    }
-
-    manifest {
-        attributes(
-                "Main-Class": "net.lenni0451.gradletemplate.Main",
-                "Multi-Release": "true"
-        )
-    }
 }
 
 publishing {
