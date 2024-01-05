@@ -50,10 +50,10 @@ public class ImageDrawer {
                 final int indices = indexBufferOffset * ImDrawData.SIZEOF_IM_DRAW_IDX;
 
                 final ImVec4 clipRect = drawData.getCmdListCmdBufferClipRect(cmdListI, cmdBufferI);
-                final float clipMinX = (clipRect.x - clipOffX) * clipScaleX;
-                final float clipMinY = (clipRect.y - clipOffY) * clipScaleY;
-                final float clipMaxX = (clipRect.z - clipOffX) * clipScaleX;
-                final float clipMaxY = (clipRect.w - clipOffY) * clipScaleY;
+                final float clipMinX = Math.max(0, (clipRect.x - clipOffX) * clipScaleX);
+                final float clipMinY = Math.max(0, (clipRect.y - clipOffY) * clipScaleY);
+                final float clipMaxX = Math.min(this.target.getWidth(), (clipRect.z - clipOffX) * clipScaleX);
+                final float clipMaxY = Math.min(this.target.getHeight(), (clipRect.w - clipOffY) * clipScaleY);
                 if (clipMaxX <= clipMinX || clipMaxY <= clipMinY) continue;
                 final Rectangle clip = new Rectangle((int) clipMinX, (int) clipMinY, (int) (clipMaxX - clipMinX), (int) (clipMaxY - clipMinY));
                 final BufferedImage texture = TextureManager.get(textureId);
