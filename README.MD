@@ -68,6 +68,6 @@ int textureId = TextureManager.create(image);
 ## Gradle
 ```groovy
 dependencies {
-    implementation "net.lenni0451:imgui-java:x.x.x"
+    implementation "net.lenni0451:imgui-swing:x.x.x"
 }
 ```
