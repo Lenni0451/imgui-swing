@@ -121,7 +121,6 @@ public class ImGuiPanel extends JPanel {
         if (this.lastFrame == 0) io.setDeltaTime(1F / 60F);
         else io.setDeltaTime((System.currentTimeMillis() - this.lastFrame) / 1000F);
         this.lastFrame = System.currentTimeMillis();
-//        System.out.println("FPS: " + (1 / io.getDeltaTime()) + " (" + io.getDeltaTime() + ")");
 
         ImGui.newFrame();
         this.render();
