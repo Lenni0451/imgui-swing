@@ -44,6 +44,7 @@ public class ImGuiPanel extends JPanel {
         ImGuiContext.init(this::init);
 
         this.setFocusable(true);
+        this.setFocusTraversalKeysEnabled(false);
         this.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
