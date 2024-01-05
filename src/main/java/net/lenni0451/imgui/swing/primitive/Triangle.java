@@ -1,6 +1,5 @@
 package net.lenni0451.imgui.swing.primitive;
 
-import net.lenni0451.imgui.swing.TextureManager;
 import net.lenni0451.imgui.swing.util.ColorUtil;
 
 import java.awt.*;
@@ -12,13 +11,13 @@ public class Triangle {
     private final Vertex p1;
     private final Vertex p2;
     private final Vertex p3;
-    private final int textureId;
+    private final BufferedImage texture;
 
-    public Triangle(final Vertex p1, final Vertex p2, final Vertex p3, final int textureId) {
+    public Triangle(final Vertex p1, final Vertex p2, final Vertex p3, final BufferedImage texture) {
         this.p1 = p1;
         this.p2 = p2;
         this.p3 = p3;
-        this.textureId = textureId;
+        this.texture = texture;
     }
 
     public Vertex getP1() {
@@ -33,22 +32,21 @@ public class Triangle {
         return this.p3;
     }
 
-    public int getTextureId() {
-        return this.textureId;
+    public BufferedImage getTexture() {
+        return this.texture;
     }
 
     public void draw(final BufferedImage target, final Rectangle clipRect) {
-        final BufferedImage texture = TextureManager.get(this.textureId);
         final int[] targetBuffer = ((DataBufferInt) target.getRaster().getDataBuffer()).getData();
-        final int[] textureBuffer = ((DataBufferInt) texture.getRaster().getDataBuffer()).getData();
+        final int[] textureBuffer = ((DataBufferInt) this.texture.getRaster().getDataBuffer()).getData();
 
         final int minX = (int) Math.min(Math.min(this.p1.x, this.p2.x), this.p3.x);
         final int minY = (int) Math.min(Math.min(this.p1.y, this.p2.y), this.p3.y);
         final int maxX = (int) Math.max(Math.max(this.p1.x, this.p2.x), this.p3.x);
         final int maxY = (int) Math.max(Math.max(this.p1.y, this.p2.y), this.p3.y);
         final int frameWidth = target.getWidth();
-        final int textureWidth = texture.getWidth();
-        final int textureHeight = texture.getHeight();
+        final int textureWidth = this.texture.getWidth();
+        final int textureHeight = this.texture.getHeight();
         for (int x = minX; x <= maxX; x++) {
             for (int y = minY; y <= maxY; y++) {
                 if (clipRect.contains(x, y) && this.isInTriangle(x, y)) {
