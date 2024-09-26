@@ -1,13 +1,11 @@
 package net.lenni0451.imgui.swing;
 
-import imgui.ImDrawData;
 import imgui.ImGui;
 import imgui.ImGuiIO;
 import imgui.flag.ImGuiMouseButton;
 import imgui.flag.ImGuiMouseCursor;
-import net.lenni0451.imgui.swing.renderer.ImageDrawer;
+import net.raphimc.softwarerenderer.swing.SoftwareRendererCanvas;
 
-import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -15,7 +13,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 
-public class ImGuiPanel extends JPanel {
+public class ImGuiCanvas extends SoftwareRendererCanvas<ImGuiSoftwareRenderer> {
 
     private static final Cursor[] MOUSE_CURSORS = new Cursor[ImGuiMouseCursor.COUNT];
     private static final Cursor HIDDEN_CURSOR;
@@ -35,12 +33,9 @@ public class ImGuiPanel extends JPanel {
     }
 
     private long lastFrame = 0;
-    private BufferedImage frame;
-    private ImageDrawer imageDrawer;
-    private int lastWidth;
-    private int lastHeight;
 
-    public ImGuiPanel() {
+    public ImGuiCanvas() {
+        super(ImGuiSoftwareRenderer::new);
         ImGuiContext.init(this::init);
 
         this.setFocusable(true);
@@ -113,19 +108,11 @@ public class ImGuiPanel extends JPanel {
     }
 
     @Override
-    public void paint(Graphics g) {
+    protected void render(final ImGuiSoftwareRenderer renderer) {
         ImGuiIO io = ImGui.getIO();
         int width = this.getWidth();
         int height = this.getHeight();
         io.setDisplaySize(width, height);
-        if (this.frame == null || width != this.lastWidth || height != this.lastHeight) {
-            this.lastWidth = width;
-            this.lastHeight = height;
-            this.frame = new BufferedImage(this.getWidth(), this.getHeight(), BufferedImage.TYPE_INT_ARGB);
-            this.imageDrawer = new ImageDrawer(this.frame);
-        } else {
-            this.imageDrawer.clear();
-        }
         try {
             Point mousePos = this.getMousePosition();
             if (mousePos != null) io.setMousePos(mousePos.x, mousePos.y);
@@ -141,16 +128,17 @@ public class ImGuiPanel extends JPanel {
         this.render();
         ImGui.render();
 
-        ImDrawData data = ImGui.getDrawData();
-        this.imageDrawer.draw(data);
-        g.clearRect(0, 0, this.getWidth(), this.getHeight());
-        g.drawImage(this.frame, 0, 0, null);
-        this.repaint();
+        renderer.drawImDrawData(ImGui.getDrawData());
     }
 
     protected void render() {
         ImGui.showDemoWindow();
         //ImPlot.showDemoWindow(new ImBoolean());
+    }
+
+    @Override
+    protected Color getClearColor() {
+        return Color.WHITE;
     }
 
 }

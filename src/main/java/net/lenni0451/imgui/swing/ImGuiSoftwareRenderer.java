@@ -1,38 +1,30 @@
-package net.lenni0451.imgui.swing.renderer;
+package net.lenni0451.imgui.swing;
 
 import imgui.ImDrawData;
 import imgui.ImVec2;
 import imgui.ImVec4;
-import net.lenni0451.imgui.swing.TextureManager;
-import net.lenni0451.imgui.swing.primitive.Triangle;
-import net.lenni0451.imgui.swing.primitive.Vertex;
 import net.lenni0451.imgui.swing.util.WrappedBuffer;
+import net.raphimc.softwarerenderer.SoftwareRenderer;
+import net.raphimc.softwarerenderer.data.ClipRect;
+import net.raphimc.softwarerenderer.data.ImageBuffer;
+import net.raphimc.softwarerenderer.enums.CullFace;
+import net.raphimc.softwarerenderer.primitives.Triangle;
+import net.raphimc.softwarerenderer.vertex.Vertex;
 
-import java.awt.*;
-import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.List;
 
-public class ImageDrawer {
+public class ImGuiSoftwareRenderer extends SoftwareRenderer {
 
-    private static final Color CLEAR_COLOR = new Color(0, 0, 0, 0);
-
-    private final BufferedImage target;
-    private final Graphics2D graphics2D;
-
-    public ImageDrawer(final BufferedImage target) {
-        if (target.getType() != BufferedImage.TYPE_INT_ARGB) {
-            throw new IllegalArgumentException("Target image must be of type TYPE_INT_ARGB");
-        }
-
-        this.target = target;
-        this.graphics2D = target.createGraphics();
+    public ImGuiSoftwareRenderer(final int width, final int height) {
+        super(width, height);
+        this.setDepthEnabled(false);
+        this.setCullFace(CullFace.NONE);
     }
 
-    public void clear() {
-        this.graphics2D.setBackground(CLEAR_COLOR);
-        this.graphics2D.clearRect(0, 0, this.target.getWidth(), this.target.getHeight());
-    }
-
-    public void draw(final ImDrawData drawData) {
+    public void drawImDrawData(final ImDrawData drawData) {
+        final int width = this.getImage().getWidth();
+        final int height = this.getImage().getHeight();
         final ImVec2 displayPos = drawData.getDisplayPos();
         final ImVec2 framebufferScale = drawData.getFramebufferScale();
         final float clipOffX = displayPos.x;
@@ -52,25 +44,24 @@ public class ImageDrawer {
                 final ImVec4 clipRect = drawData.getCmdListCmdBufferClipRect(cmdListI, cmdBufferI);
                 final float clipMinX = Math.max(0, (clipRect.x - clipOffX) * clipScaleX);
                 final float clipMinY = Math.max(0, (clipRect.y - clipOffY) * clipScaleY);
-                final float clipMaxX = Math.min(this.target.getWidth(), (clipRect.z - clipOffX) * clipScaleX);
-                final float clipMaxY = Math.min(this.target.getHeight(), (clipRect.w - clipOffY) * clipScaleY);
+                final float clipMaxX = Math.min(width, (clipRect.z - clipOffX) * clipScaleX);
+                final float clipMaxY = Math.min(height, (clipRect.w - clipOffY) * clipScaleY);
                 if (clipMaxX <= clipMinX || clipMaxY <= clipMinY) continue;
-                final Rectangle clip = new Rectangle((int) clipMinX, (int) clipMinY, (int) (clipMaxX - clipMinX), (int) (clipMaxY - clipMinY));
-                final BufferedImage texture = TextureManager.get(textureId);
+                final ClipRect clip = new ClipRect((int) clipMinX, (int) clipMinY, (int) clipMaxX, (int) clipMaxY);
+                final ImageBuffer texture = new ImageBuffer(TextureManager.get(textureId));
 
+                final List<Triangle> triangles = new ArrayList<>();
                 for (int i = 0, x = 0; i < elementCount / 3; i++, x += 6) {
                     final Vertex left = vertexBuffer.getVertex((indexBuffer.getUnsignedShort(indices + x) + vertexBufferOffset) * ImDrawData.SIZEOF_IM_DRAW_VERT);
                     final Vertex middle = vertexBuffer.getVertex((indexBuffer.getUnsignedShort(indices + x + ImDrawData.SIZEOF_IM_DRAW_IDX) + vertexBufferOffset) * ImDrawData.SIZEOF_IM_DRAW_VERT);
                     final Vertex right = vertexBuffer.getVertex((indexBuffer.getUnsignedShort(indices + x + ImDrawData.SIZEOF_IM_DRAW_IDX * 2) + vertexBufferOffset) * ImDrawData.SIZEOF_IM_DRAW_VERT);
-                    final Triangle triangle = new Triangle(left, middle, right, texture);
-                    triangle.draw(this.target, clip);
+                    triangles.add(new Triangle(left, middle, right, texture));
                 }
+
+                this.setClipRect(clip);
+                this.draw2DPrimitives(triangles);
             }
         }
-    }
-
-    public BufferedImage getTarget() {
-        return this.target;
     }
 
 }

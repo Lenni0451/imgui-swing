@@ -1,5 +1,7 @@
 package net.lenni0451.imgui.swing;
 
+import net.raphimc.softwarerenderer.util.ImageUtil;
+
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 import java.nio.ByteBuffer;
@@ -25,13 +27,8 @@ public class TextureManager {
     }
 
     public static int create(BufferedImage texture) {
-        if (texture.getType() != BufferedImage.TYPE_INT_ARGB) {
-            BufferedImage newTexture = new BufferedImage(texture.getWidth(), texture.getHeight(), BufferedImage.TYPE_INT_ARGB);
-            newTexture.getGraphics().drawImage(texture, 0, 0, null);
-            texture = newTexture;
-        }
         int id = nextId++;
-        textures.put(id, texture);
+        textures.put(id, ImageUtil.ensureArgb(texture));
         return id;
     }
 

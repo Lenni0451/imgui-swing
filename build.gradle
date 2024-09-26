@@ -6,7 +6,7 @@ plugins {
 }
 
 base {
-    java.toolchain.languageVersion = JavaLanguageVersion.of(8)
+    java.toolchain.languageVersion = JavaLanguageVersion.of(17)
     compileJava.options.encoding = compileTestJava.options.encoding = javadoc.options.encoding = "UTF-8"
 
     archivesName = project.maven_name
@@ -16,9 +16,14 @@ base {
 
 repositories {
     mavenCentral()
+    maven {
+        name = "Lenni0451"
+        url = "https://maven.lenni0451.net/everything"
+    }
 }
 
 dependencies {
+    api "net.raphimc:software-renderer:1.0.0-SNAPSHOT"
     api "io.github.spair:imgui-java-binding:1.86.11"
 
     ["windows", "linux", "macos"].each {
